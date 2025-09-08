@@ -1,0 +1,80 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Publicador {
+  id          String   @id @db.VarChar(20)
+  nome_completo String @db.VarChar(255)
+  fretes      Frete[]
+}
+
+model Frete {
+  id           String      @id @db.VarChar(20)
+  id_empresa   String      @db.VarChar(50)
+  codigo_frete String      @db.VarChar(50)
+  tipo_frete   String      @db.VarChar(50)
+  tag          String?     @db.Text
+  id_publicador String
+  produto      String      @db.VarChar(255)
+  data_criacao DateTime    @db.Timestamp
+
+  publicador   Publicador  @relation(fields: [id_publicador], references: [id])
+  rotas        Rota[]
+  veiculos     Veiculo[]
+  carrocerias  Carroceria[]
+  precos       Preco[]
+}
+
+model Rota {
+  id             Int    @id @default(autoincrement())
+  id_frete       String @db.VarChar(20)
+  estado_origem  String @db.Char(2)
+  cidade_origem  String @db.VarChar(100)
+  estado_destino String @db.Char(2)
+  cidade_destino String @db.VarChar(100)
+
+  frete          Frete @relation(fields: [id_frete], references: [id])
+}
+
+model Veiculo {
+  id       Int    @id @default(autoincrement())
+  id_frete String @db.VarChar(20)
+  nome     String @db.VarChar(255)
+
+  frete    Frete @relation(fields: [id_frete], references: [id])
+}
+
+model Carroceria {
+  id       Int    @id @default(autoincrement())
+  id_frete String @db.VarChar(20)
+  nome     String @db.VarChar(255)
+
+  frete    Frete @relation(fields: [id_frete], references: [id])
+}
+
+model Preco {
+  id       Int     @id @default(autoincrement())
+  id_frete String  @db.VarChar(20)
+  valor    Decimal @db.Decimal(10, 2)
+  tipo     String  @db.VarChar(50)
+
+  frete    Frete @relation(fields: [id_frete], references: [id])
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+model Usuario {
+  id     Int    @id @default(autoincrement())
+  nome   String @db.VarChar(255)
+  email  String @unique @db.VarChar(255)
+  senha  String @db.VarChar(255)
+  role  Role   @default(USER)
+}
