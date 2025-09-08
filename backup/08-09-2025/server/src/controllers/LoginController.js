@@ -36,33 +36,11 @@ class LoginController {
       }
 
       const newToken = await JwtService.generateToken(user.id);
-      
-      res.cookie("token", newToken, {
-        httpOnly: true,
-        sameSite: "lax", // permite envio cross-origin
-        secure: false,   // deve ser false para HTTP local
-        maxAge: 60 * 60 * 1000
-      });
       return response.success(res, 'Login realizado com sucesso', { token: newToken }, 200);
 
     } catch (err) {
       // log interno (não expor stack para o cliente)
       console.error('LoginController.Signin error:', err);
-      return response.error(res, 'Erro interno. Tente novamente mais tarde.', 'INTERNAL_SERVER_ERROR', 500);
-    }
-  }
-  static async Logout(req, res) {
-
-    try {
-        res.cookie("token", {
-        httpOnly: true,
-        sameSite: "lax",
-        secure: false, // true em produção HTTPS
-        });
-      return response.success(res, 'Logout realizado com sucesso', {}, 200);
-
-    } catch (err) {
-      console.error('LoginController.Logout error:', err);
       return response.error(res, 'Erro interno. Tente novamente mais tarde.', 'INTERNAL_SERVER_ERROR', 500);
     }
   }

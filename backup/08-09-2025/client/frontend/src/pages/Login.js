@@ -1,8 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { apiLogin} from "../api/EndpointsApi"
-import { useNavigate } from "react-router-dom"
+
+// Importações adicionais para ícones e InputAdornment
 import {
   Avatar,
   Box,
@@ -15,7 +15,6 @@ import {
   Stack,
   TextField,
   Typography,
-  Alert
 } from "@mui/material"
 import { AlternateEmail, LockOutlined, Visibility, VisibilityOff } from "@mui/icons-material"
 
@@ -23,56 +22,14 @@ export default function Login() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
-  const [error, setError] = useState({ isOpen: false, field: "", message: "" })
 
-  const navigate = useNavigate()
-
+  // Suas cores originais foram mantidas
   const primaryColor = "#242734"
   const textColor = "#464A53"
-  const subtleGray = "#f0f2f5"
+  const subtleGray = "#f0f2f5" // Um cinza claro para o fundo
 
   const handleTogglePasswordVisibility = () => {
     setShowPassword(!showPassword)
-  }
-
-  const isEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
-
-  const validateForm = () => {
-    if (!email) {
-      setError({ isOpen: true, field: "email", message: "Por favor, preencha o campo E-mail." })
-      return false
-    }
-    if (!isEmail(email)) {
-      setError({ isOpen: true, field: "email", message: "Por favor, insira um email válido." })
-      return false
-    }
-    if (!password) {
-      setError({ isOpen: true, field: "password", message: "Por favor, preencha o campo Senha." })
-      return false
-    }
-    if (password.length < 8) {
-      setError({ isOpen: true, field: "password", message: "A senha deve ter no mínimo 8 caracteres." })
-      return false
-    }
-    setError({ isOpen: false, field: "", message: "" })
-    return true
-  }
-
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-
-    if (!validateForm()) return
-
-    try {
-
-      const response = await apiLogin(email, password);
-      
-      navigate("/dashboard", { replace: true })
-
-
-    } catch (err) {
-      setError({ isOpen: true, field: "general", message: err.response?.data?.message || "Erro ao fazer login." })
-    }
   }
 
   return (
@@ -82,6 +39,7 @@ export default function Login() {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
+        // Fundo com gradiente sutil para dar profundidade
         background: `linear-gradient(to bottom right, ${subtleGray}, #ffffff)`,
       }}
     >
@@ -89,10 +47,10 @@ export default function Login() {
         sx={{
           width: "100%",
           maxWidth: "448px",
-          boxShadow: "0px 8px 40px -12px rgba(0,0,0,0.2)",
-          p: { xs: 2, sm: 4 },
-          borderRadius: 2,
-          border: "none",
+          boxShadow: "0px 8px 40px -12px rgba(0,0,0,0.2)", // Sombra mais suave
+          p: { xs: 2, sm: 4 }, // Padding responsivo
+          borderRadius: 2, // Bordas mais arredondadas
+          border: 'none'
         }}
       >
         <CardContent>
@@ -108,12 +66,8 @@ export default function Login() {
             </Typography>
           </Stack>
 
-          <Box component="form" noValidate sx={{ mt: 3 }} onSubmit={handleSubmit}>
-            <Stack spacing={2}>
-              {error.isOpen && error.field === "general" && (
-                <Alert severity="error">{error.message}</Alert>
-              )}
-
+          <Box component="form" noValidate sx={{ mt: 3 }}>
+            <Stack spacing={3}>
               <TextField
                 id="email"
                 name="email"
@@ -122,8 +76,6 @@ export default function Login() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 fullWidth
-                error={error.isOpen && error.field === "email"}
-                helperText={error.isOpen && error.field === "email" ? error.message : ""}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -132,7 +84,6 @@ export default function Login() {
                   ),
                 }}
               />
-
               <TextField
                 id="password"
                 name="password"
@@ -142,8 +93,6 @@ export default function Login() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 fullWidth
-                error={error.isOpen && error.field === "password"}
-                helperText={error.isOpen && error.field === "password" ? error.message : ""}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -163,13 +112,16 @@ export default function Login() {
                   ),
                 }}
               />
-
               <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-                <Link href="#" underline="hover" variant="body2" sx={{ color: textColor }}>
+                <Link
+                  href="#"
+                  underline="hover"
+                  variant="body2"
+                  sx={{ color: textColor }}
+                >
                   Esqueceu a senha?
                 </Link>
               </Box>
-
               <Button
                 type="submit"
                 variant="contained"
@@ -191,6 +143,13 @@ export default function Login() {
               </Button>
             </Stack>
           </Box>
+
+          <Typography variant="body2" color={textColor} align="center" sx={{ mt: 4 }}>
+            Não tem uma conta?{" "}
+            <Link href="#" fontWeight="bold" sx={{ color: primaryColor }}>
+              Cadastre-se
+            </Link>
+          </Typography>
         </CardContent>
       </Card>
     </Box>
