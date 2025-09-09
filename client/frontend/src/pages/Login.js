@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { apiLogin} from "../api/EndpointsApi"
+import { apiLogin } from "../api/EndpointsApi"
 import { useNavigate } from "react-router-dom"
 import {
   Avatar,
@@ -27,9 +27,7 @@ export default function Login() {
 
   const navigate = useNavigate()
 
-  const primaryColor = "#242734"
-  const textColor = "#464A53"
-  const subtleGray = "#f0f2f5"
+  // As variáveis de cor foram removidas daqui, pois virão do tema.
 
   const handleTogglePasswordVisibility = () => {
     setShowPassword(!showPassword)
@@ -60,16 +58,11 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-
     if (!validateForm()) return
 
     try {
-
-      const response = await apiLogin(email, password);
-      
+      const response = await apiLogin(email, password)
       navigate("/dashboard", { replace: true })
-
-
     } catch (err) {
       setError({ isOpen: true, field: "general", message: err.response?.data?.message || "Erro ao fazer login." })
     }
@@ -77,13 +70,14 @@ export default function Login() {
 
   return (
     <Box
-      sx={{
+      sx={(theme) => ({ // Usando uma função para acessar o tema
         minHeight: "100vh",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        background: `linear-gradient(to bottom right, ${subtleGray}, #ffffff)`,
-      }}
+        // O gradiente agora usa as cores do background do tema
+        background: `linear-gradient(to bottom right, ${theme.palette.background.default}, ${theme.palette.background.paper})`,
+      })}
     >
       <Card
         sx={{
@@ -97,13 +91,13 @@ export default function Login() {
       >
         <CardContent>
           <Stack spacing={2} alignItems="center">
-            <Avatar sx={{ m: 1, bgcolor: primaryColor }}>
+            <Avatar sx={{ m: 1, bgcolor: 'primary.main' }}> {/* Usa a cor primária do tema */}
               <LockOutlined />
             </Avatar>
-            <Typography component="h1" variant="h5" fontWeight="bold" color={primaryColor}>
+            <Typography component="h1" variant="h5" fontWeight="bold" color="primary.main"> {/* Usa a cor primária do tema */}
               FR Prime
             </Typography>
-            <Typography variant="body2" color={textColor}>
+            <Typography variant="body2" color="text.secondary"> {/* Usa a cor secundária de texto do tema */}
               Faça login para continuar
             </Typography>
           </Stack>
@@ -127,7 +121,8 @@ export default function Login() {
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <AlternateEmail sx={{ color: textColor }} />
+                      {/* Cor padrão para ícones de ação */}
+                      <AlternateEmail color="action" />
                     </InputAdornment>
                   ),
                 }}
@@ -147,7 +142,7 @@ export default function Login() {
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <LockOutlined sx={{ color: textColor }} />
+                      <LockOutlined color="action" />
                     </InputAdornment>
                   ),
                   endAdornment: (
@@ -165,7 +160,7 @@ export default function Login() {
               />
 
               <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-                <Link href="#" underline="hover" variant="body2" sx={{ color: textColor }}>
+                <Link href="#" underline="hover" variant="body2" color="text.primary"> {/* Usa a cor primária de texto */}
                   Esqueceu a senha?
                 </Link>
               </Box>
@@ -173,15 +168,14 @@ export default function Login() {
               <Button
                 type="submit"
                 variant="contained"
+                color="primary" // O MUI aplicará as cores primárias do tema aqui
                 fullWidth
                 sx={{
                   py: 1.5,
-                  backgroundColor: primaryColor,
-                  color: "white",
                   fontWeight: "bold",
                   transition: "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
                   "&:hover": {
-                    backgroundColor: primaryColor,
+                    // O hover padrão do MUI já escurece a cor. Mantemos apenas os efeitos customizados.
                     transform: "translateY(-2px)",
                     boxShadow: "0px 4px 20px -8px rgba(0,0,0,0.4)",
                   },

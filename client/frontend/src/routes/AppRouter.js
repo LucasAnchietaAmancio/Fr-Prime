@@ -1,17 +1,26 @@
-import { BrowserRouter, Route, Routes} from "react-router-dom"
+import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom"
 import Login from "../pages/Login"
 import Dashboard from "../pages/Dashboard"
-import PrivateRoute from "../pages/PrivateRoute";
+import PrivateRoute from "./PrivateRoute"
+import LayoutWithSidebar from "../components/LayoutWithSidebar"
+
 function AppRouter() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
-        <Route path="/dashboard" element={
-                <PrivateRoute>
-                    <Dashboard/>
-                </PrivateRoute>
-                }/>
+
+        <Route element={<LayoutWithSidebar />}>
+          <Route
+            path="/dashboard"
+            element={
+              <PrivateRoute>
+                <Dashboard />
+              </PrivateRoute>
+            }
+          />
+          
+        </Route>
       </Routes>
     </BrowserRouter>
   )
