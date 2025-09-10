@@ -42,7 +42,7 @@ class ControllerUser {
     try {
       const { email } = req.body;
 
-      if (!email) return response.error(res, 'Email é obrigatório', 'MISSING_EMAIL', 400);
+      if (!email || !req.body) return response.error(res, 'Email é obrigatório', 'MISSING_EMAIL', 400);
       if (ValidatorService.isValidEmail(email) === false) return response.error(res, 'Email informado está em formato inválido', 'INVALID_EMAIL_FORMAT', 400);
 
       const user = await UserModel.getUserByEmail(email);

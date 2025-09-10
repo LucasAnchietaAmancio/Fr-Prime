@@ -61,13 +61,6 @@ export default function Sidebar() {
           </ListItemIcon>
           <ListItemText primary="Fretes" />
         </ListItemButton>
-
-        <ListItemButton onClick={() => navigate("/gestao")}>
-          <ListItemIcon>
-            <Settings size={20} color="white" />
-          </ListItemIcon>
-          <ListItemText primary="Gestão" />
-        </ListItemButton>
       </List>
 
       <Box flexGrow={1} />

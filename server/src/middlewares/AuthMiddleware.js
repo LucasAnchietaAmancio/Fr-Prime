@@ -3,7 +3,8 @@ const JwtService = require('../services/JwtService');
 const response = require('../utils/Response');
 
 async function isAuthenticated(req, res, next) {
-  const authHeader = req.headers.authorization;
+  const authHeader = req.cookies.token;
+  console.log("AuthHeader:", authHeader);
   if (!authHeader) return response.error(res, 'Token não fornecido', 'TOKEN_NOT_PROVIDED', 401);
 
   // aceitar 'Bearer ' case-insensitive e remover prefixo com segurança
@@ -25,5 +26,6 @@ async function isAuthenticated(req, res, next) {
     return response.error(res, 'Token inválido', 'INVALID_TOKEN', 401);
   }
 }
+
 
 module.exports = { isAuthenticated };

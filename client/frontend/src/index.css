@@ -7,4 +7,5 @@ body {
   font-family: 'Inter', sans-serif; /* "Pai, vista a camisa 'Inter'!" */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
 }

@@ -1,11 +1,11 @@
-// controllers/LoginController.js
+// controllers/AuthController.js
 const UserModel = require('../models/UserModel');
 const ValidatorService = require('../services/ValidatorService');
 const JwtService = require('../services/JwtService');
 const response = require('../utils/Response');
 const bcrypt = require('bcrypt');
 
-class LoginController {
+class AuthController {
   static async Signin(req, res) {
     try {
       const { email, senha } = req.body;
@@ -37,7 +37,7 @@ class LoginController {
 
       const newToken = await JwtService.generateToken(user.id);
       
-      res.cookie("token", newToken, {
+      res.cookie("token", `Bearer ${newToken}`, {
         httpOnly: true,
         sameSite: "lax", // permite envio cross-origin
         secure: false,   // deve ser false para HTTP local
@@ -47,25 +47,50 @@ class LoginController {
 
     } catch (err) {
       // log interno (não expor stack para o cliente)
-      console.error('LoginController.Signin error:', err);
+      console.error('AuthController.Signin error:', err);
       return response.error(res, 'Erro interno. Tente novamente mais tarde.', 'INTERNAL_SERVER_ERROR', 500);
     }
   }
-  static async Logout(req, res) {
+  static async accessPrivateRoute(req, res) {
 
-    try {
-        res.cookie("token", {
-        httpOnly: true,
-        sameSite: "lax",
-        secure: false, // true em produção HTTPS
-        });
-      return response.success(res, 'Logout realizado com sucesso', {}, 200);
+        const cookieToken = req.cookies.token;
 
-    } catch (err) {
-      console.error('LoginController.Logout error:', err);
-      return response.error(res, 'Erro interno. Tente novamente mais tarde.', 'INTERNAL_SERVER_ERROR', 500);
+        if (!cookieToken) return response.error(res, 'Token não fornecido', 'TOKEN_MISSING', 401);
+
+        const parts = cookieToken.split(' ');
+        if (parts.length !== 2 || !/^Bearer$/i.test(parts[0])) { // tem que estar no formato Bearer eyJhbGciOiJIUzI1...
+          return response.error(res, 'Formato do token inválido', 'INVALID_TOKEN_FORMAT', 401);
+        }
+        const cookieTokenFormat = parts[1].trim();
+
+        console.log("CookieToken:", cookieTokenFormat);
+        try {
+            const decoded = await JwtService.verifyToken(cookieTokenFormat);
+
+            if (!decoded) return response.error(res, 'Token inválido ou expirado', 'TOKEN_INVALID', 401);
+            
+            return response.success(res, 'Acesso autorizado a rota privada', { message: 'Você acessou uma rota privada!' }, 200);
+
+        } catch (err) {
+            console.error('PrivateRouteController.accessPrivateRoute error:', err);
+            return response.error(res, 'Erro interno. Tente novamente mais tarde.', 'INTERNAL_SERVER_ERROR', 500);
+        }
     }
-  }
+    static async Logout(req, res) {
+
+      try {
+          res.cookie("token", {
+          httpOnly: true,
+          sameSite: "lax",
+          secure: false, // true em produção HTTPS
+          });
+        return response.success(res, 'Logout realizado com sucesso', {}, 200);
+
+      } catch (err) {
+        console.error('AuthController.Logout error:', err);
+        return response.error(res, 'Erro interno. Tente novamente mais tarde.', 'INTERNAL_SERVER_ERROR', 500);
+      }
+    }
 }
 
-module.exports = LoginController;
+module.exports = AuthController;
