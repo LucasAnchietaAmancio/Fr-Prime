@@ -1,0 +1,82 @@
+// schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id_usuario      Int      @id @default(autoincrement())
+  nome            String   @db.VarChar(255)
+  cpf             String   @db.VarChar(14)
+  email           String   @unique @db.VarChar(255)
+  telefone        String   @db.VarChar(15)
+  senha           String   @db.VarChar(255)
+  role            Role     @default(USER)
+
+  fretes          Frete[]
+}
+
+model Frete {
+  id_frete        Int          @id @default(autoincrement())
+  id_fretebras    String       @unique @db.VarChar(20)
+  id_empresa      String       @db.VarChar(50)
+  codigo_frete    String       @db.VarChar(50)
+  tipo_frete      String       @db.VarChar(50)
+  tag             String?      @db.Text
+  id_publicador   Int
+  produto         String       @db.VarChar(255)
+  valorTotal      Decimal  @db.Decimal(10, 2)
+  status          String       @db.VarChar(1) @default("A") // A: Ativo, I: Inativo
+  data_criacao    DateTime     @db.Timestamp
+
+  publicador      Usuario      @relation(fields: [id_publicador], references: [id_usuario])
+  rotas           Rota[]
+  veiculos        Veiculo[]
+  carrocerias     Carroceria[]
+  precos          Preco[]
+}
+
+model Rota {
+  id_rota         Int      @id @default(autoincrement())
+  id_frete        Int
+  estado_origem   String   @db.Char(2)
+  cidade_origem   String   @db.VarChar(100)
+  estado_destino  String   @db.Char(2)
+  cidade_destino  String   @db.VarChar(100)
+
+  frete           Frete    @relation(fields: [id_frete], references: [id_frete])
+}
+
+model Veiculo {
+  id_veiculo      Int      @id @default(autoincrement())
+  id_frete        Int
+  nome            String   @db.VarChar(255)
+
+  frete           Frete    @relation(fields: [id_frete], references: [id_frete])
+}
+
+model Carroceria {
+  id_carroceria   Int      @id @default(autoincrement())
+  id_frete        Int
+  nome            String   @db.VarChar(255)
+
+  frete           Frete    @relation(fields: [id_frete], references: [id_frete])
+}
+
+model Preco {
+  id_preco        Int      @id @default(autoincrement())
+  id_frete        Int
+  valor           Decimal  @db.Decimal(10, 2)
+  tipo            String   @db.VarChar(50)
+
+  frete           Frete    @relation(fields: [id_frete], references: [id_frete])
+}
+
+enum Role {
+  ADMIN
+  USER
+}
