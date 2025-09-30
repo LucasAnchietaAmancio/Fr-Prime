@@ -1,7 +1,9 @@
 import {
   BarChart3,
   Settings,
-  LogOut
+  LogOut,
+  UserPlus,
+  ClipboardList
 } from "lucide-react"
 import {
   Box,
@@ -55,11 +57,28 @@ export default function Sidebar() {
       <Divider sx={{ bgcolor: 'rgba(255, 255, 255, 0.12)' }} />
 
       <List>
-        <ListItemButton onClick={() => navigate("/dashboard")}>
+        {/* Fretes / Dashboard */}
+        <ListItemButton onClick={() => navigate("/")}>
           <ListItemIcon>
             <BarChart3 size={20} color="white"/>
           </ListItemIcon>
           <ListItemText primary="Fretes" />
+        </ListItemButton>
+
+        {/* Publicadores */}
+        <ListItemButton onClick={() => navigate("/publisher")}>
+          <ListItemIcon>
+            <UserPlus size={20} color="white"/>
+          </ListItemIcon>
+          <ListItemText primary="Publicadores" />
+        </ListItemButton>
+
+        {/* Gestão de Cargas */}
+        <ListItemButton onClick={() => navigate("/gestao")}>
+          <ListItemIcon>
+            <ClipboardList size={20} color="white"/>
+          </ListItemIcon>
+          <ListItemText primary="Gestão de Cargas" />
         </ListItemButton>
       </List>
 

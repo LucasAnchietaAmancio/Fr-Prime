@@ -14,44 +14,40 @@ import {
   Link,
   Stack,
   TextField,
-  Typography,
-  Alert
+  Typography
 } from "@mui/material"
 import { AlternateEmail, LockOutlined, Visibility, VisibilityOff } from "@mui/icons-material"
+
+import { isEmailValid, isLoginPasswordValid } from '../utils/validators'
+import { useNotification } from "../contexts/NotificationContext"
 
 export default function Login() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState({ isOpen: false, field: "", message: "" })
-
+  
   const navigate = useNavigate()
-
-  // As variáveis de cor foram removidas daqui, pois virão do tema.
+  const { showNotification } = useNotification()
 
   const handleTogglePasswordVisibility = () => {
     setShowPassword(!showPassword)
   }
 
-  const isEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
-
+  
   const validateForm = () => {
-    if (!email) {
-      setError({ isOpen: true, field: "email", message: "Por favor, preencha o campo E-mail." })
-      return false
+    const emailValidation = isEmailValid(email);
+    if (!emailValidation.isValid) {
+      setError({ isOpen: true, field: "email", message: emailValidation.message });
+      return false;
     }
-    if (!isEmail(email)) {
-      setError({ isOpen: true, field: "email", message: "Por favor, insira um email válido." })
-      return false
+
+    const passwordValidation = isLoginPasswordValid(password);
+    if (!passwordValidation.isValid) {
+      setError({ isOpen: true, field: "password", message: passwordValidation.message });
+      return false;
     }
-    if (!password) {
-      setError({ isOpen: true, field: "password", message: "Por favor, preencha o campo Senha." })
-      return false
-    }
-    if (password.length < 8) {
-      setError({ isOpen: true, field: "password", message: "A senha deve ter no mínimo 8 caracteres." })
-      return false
-    }
+    
     setError({ isOpen: false, field: "", message: "" })
     return true
   }
@@ -61,21 +57,22 @@ export default function Login() {
     if (!validateForm()) return
 
     try {
-      const response = await apiLogin(email, password)
-      navigate("/dashboard", { replace: true })
+      await apiLogin(email, password)
+      showNotification("Login realizado com sucesso!", "success")
+      navigate("/", { replace: true })
     } catch (err) {
-      setError({ isOpen: true, field: "general", message: err.response?.data?.message || "Erro ao fazer login." })
+      const errorMessage = err.response?.data?.message || "Erro ao fazer login. Verifique suas credenciais."
+      showNotification(errorMessage, "error")
     }
   }
 
   return (
     <Box
-      sx={(theme) => ({ // Usando uma função para acessar o tema
+      sx={(theme) => ({
         minHeight: "100vh",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        // O gradiente agora usa as cores do background do tema
         background: `linear-gradient(to bottom right, ${theme.palette.background.default}, ${theme.palette.background.paper})`,
       })}
     >
@@ -91,23 +88,19 @@ export default function Login() {
       >
         <CardContent>
           <Stack spacing={2} alignItems="center">
-            <Avatar sx={{ m: 1, bgcolor: 'primary.main' }}> {/* Usa a cor primária do tema */}
+            <Avatar sx={{ m: 1, bgcolor: 'primary.main' }}>
               <LockOutlined />
             </Avatar>
-            <Typography component="h1" variant="h5" fontWeight="bold" color="primary.main"> {/* Usa a cor primária do tema */}
+            <Typography component="h1" variant="h5" fontWeight="bold" color="primary.main">
               FR Prime
             </Typography>
-            <Typography variant="body2" color="text.secondary"> {/* Usa a cor secundária de texto do tema */}
+            <Typography variant="body2" color="text.secondary">
               Faça login para continuar
             </Typography>
           </Stack>
 
           <Box component="form" noValidate sx={{ mt: 3 }} onSubmit={handleSubmit}>
             <Stack spacing={2}>
-              {error.isOpen && error.field === "general" && (
-                <Alert severity="error">{error.message}</Alert>
-              )}
-
               <TextField
                 id="email"
                 name="email"
@@ -121,7 +114,6 @@ export default function Login() {
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      {/* Cor padrão para ícones de ação */}
                       <AlternateEmail color="action" />
                     </InputAdornment>
                   ),
@@ -160,7 +152,7 @@ export default function Login() {
               />
 
               <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-                <Link href="#" underline="hover" variant="body2" color="text.primary"> {/* Usa a cor primária de texto */}
+                <Link href="#" underline="hover" variant="body2" color="text.primary">
                   Esqueceu a senha?
                 </Link>
               </Box>
@@ -168,14 +160,13 @@ export default function Login() {
               <Button
                 type="submit"
                 variant="contained"
-                color="primary" // O MUI aplicará as cores primárias do tema aqui
+                color="primary"
                 fullWidth
                 sx={{
                   py: 1.5,
                   fontWeight: "bold",
                   transition: "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
                   "&:hover": {
-                    // O hover padrão do MUI já escurece a cor. Mantemos apenas os efeitos customizados.
                     transform: "translateY(-2px)",
                     boxShadow: "0px 4px 20px -8px rgba(0,0,0,0.4)",
                   },
