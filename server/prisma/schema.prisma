@@ -1,3 +1,4 @@
+// schema.prisma
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,74 +8,75 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Publicador {
-  id          String   @id @db.VarChar(20)
-  nome_completo String @db.VarChar(255)
-  fretes      Frete[]
+model Usuario {
+  id_usuario      Int      @id @default(autoincrement())
+  nome            String   @db.VarChar(255)
+  cpf             String   @db.VarChar(14)
+  email           String   @unique @db.VarChar(255)
+  telefone        String   @db.VarChar(15)
+  senha           String   @db.VarChar(255)
+  role            Role     @default(USER)
+
+  fretes          Frete[]
 }
 
 model Frete {
-  id           String      @id @db.VarChar(20)
-  id_empresa   String      @db.VarChar(50)
-  codigo_frete String      @db.VarChar(50)
-  tipo_frete   String      @db.VarChar(50)
-  tag          String?     @db.Text
-  id_publicador String
-  produto      String      @db.VarChar(255)
-  data_criacao DateTime    @db.Timestamp
+  id_frete        Int          @id @default(autoincrement())
+  id_fretebras    String       @unique @db.VarChar(20)
+  id_empresa      String       @db.VarChar(50)
+  codigo_frete    String       @db.VarChar(50)
+  tipo_frete      String       @db.VarChar(50)
+  tag             String?      @db.Text
+  id_publicador   Int
+  produto         String       @db.VarChar(255)
+  valorTotal      Decimal  @db.Decimal(10, 2)
+  status          String       @db.VarChar(1) @default("A") // A: Ativo, I: Inativo
+  data_criacao    DateTime     @db.Timestamp
 
-  publicador   Publicador  @relation(fields: [id_publicador], references: [id])
-  rotas        Rota[]
-  veiculos     Veiculo[]
-  carrocerias  Carroceria[]
-  precos       Preco[]
+  publicador      Usuario      @relation(fields: [id_publicador], references: [id_usuario])
+  rotas           Rota[]
+  veiculos        Veiculo[]
+  carrocerias     Carroceria[]
+  precos          Preco[]
 }
 
 model Rota {
-  id             Int    @id @default(autoincrement())
-  id_frete       String @db.VarChar(20)
-  estado_origem  String @db.Char(2)
-  cidade_origem  String @db.VarChar(100)
-  estado_destino String @db.Char(2)
-  cidade_destino String @db.VarChar(100)
+  id_rota         Int      @id @default(autoincrement())
+  id_frete        Int
+  estado_origem   String   @db.Char(2)
+  cidade_origem   String   @db.VarChar(100)
+  estado_destino  String   @db.Char(2)
+  cidade_destino  String   @db.VarChar(100)
 
-  frete          Frete @relation(fields: [id_frete], references: [id])
+  frete           Frete    @relation(fields: [id_frete], references: [id_frete])
 }
 
 model Veiculo {
-  id       Int    @id @default(autoincrement())
-  id_frete String @db.VarChar(20)
-  nome     String @db.VarChar(255)
+  id_veiculo      Int      @id @default(autoincrement())
+  id_frete        Int
+  nome            String   @db.VarChar(255)
 
-  frete    Frete @relation(fields: [id_frete], references: [id])
+  frete           Frete    @relation(fields: [id_frete], references: [id_frete])
 }
 
 model Carroceria {
-  id       Int    @id @default(autoincrement())
-  id_frete String @db.VarChar(20)
-  nome     String @db.VarChar(255)
+  id_carroceria   Int      @id @default(autoincrement())
+  id_frete        Int
+  nome            String   @db.VarChar(255)
 
-  frete    Frete @relation(fields: [id_frete], references: [id])
+  frete           Frete    @relation(fields: [id_frete], references: [id_frete])
 }
 
 model Preco {
-  id       Int     @id @default(autoincrement())
-  id_frete String  @db.VarChar(20)
-  valor    Decimal @db.Decimal(10, 2)
-  tipo     String  @db.VarChar(50)
+  id_preco        Int      @id @default(autoincrement())
+  id_frete        Int
+  valor           Decimal  @db.Decimal(10, 2)
+  tipo            String   @db.VarChar(50)
 
-  frete    Frete @relation(fields: [id_frete], references: [id])
+  frete           Frete    @relation(fields: [id_frete], references: [id_frete])
 }
 
 enum Role {
   ADMIN
   USER
-}
-
-model Usuario {
-  id     Int    @id @default(autoincrement())
-  nome   String @db.VarChar(255)
-  email  String @unique @db.VarChar(255)
-  senha  String @db.VarChar(255)
-  role  Role   @default(USER)
 }
